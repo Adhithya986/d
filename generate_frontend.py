@@ -1,0 +1,1669 @@
+# -*- coding: utf-8 -*-
+"""
+generate_frontend.py
+Generates styles.css and app.js with rich terminal features.
+"""
+
+CSS_CONTENT = """/* ==========================================================================
+   VBIT DBMS LAB MANUAL - TERMINAL UI STYLESHEET
+   ========================================================================== */
+
+:root {
+    /* DEFAULT THEME: MATRIX PHOSPHOR GREEN */
+    --bg-primary: #070b08;
+    --bg-secondary: #0d140e;
+    --bg-card: #0f1811;
+    --bg-code: #050806;
+    --text-primary: #33ff77;
+    --text-secondary: #1aff66cc;
+    --text-muted: #1aff6688;
+    --accent: #00ff66;
+    --accent-bright: #66ff99;
+    --accent-glow: rgba(0, 255, 102, 0.35);
+    --border-color: #00ff6633;
+    --border-bright: #00ff66aa;
+    --card-header-bg: #132015;
+    --prompt-color: #00ffcc;
+    --keyword-color: #ffcc00;
+    --string-color: #ff9955;
+    --comment-color: #559966;
+    --font-mono: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --transition-fast: 0.15s ease;
+}
+
+/* THEME: CYBERPUNK NEON */
+body.theme-cyber {
+    --bg-primary: #070913;
+    --bg-secondary: #0d1222;
+    --bg-card: #10162a;
+    --bg-code: #05070f;
+    --text-primary: #00f0ff;
+    --text-secondary: #00f0ffcc;
+    --text-muted: #00f0ff77;
+    --accent: #00f0ff;
+    --accent-bright: #ff007f;
+    --accent-glow: rgba(0, 240, 255, 0.4);
+    --border-color: #00f0ff44;
+    --border-bright: #ff007f;
+    --card-header-bg: #141b33;
+    --prompt-color: #ff007f;
+    --keyword-color: #ffea00;
+    --string-color: #00ffaa;
+    --comment-color: #6272a4;
+}
+
+/* THEME: AMBER CRT (1980s Retro Mainframe) */
+body.theme-amber {
+    --bg-primary: #0c0802;
+    --bg-secondary: #160e04;
+    --bg-card: #1c1306;
+    --bg-code: #080501;
+    --text-primary: #ffb000;
+    --text-secondary: #ffb000cc;
+    --text-muted: #ffb00077;
+    --accent: #ffb000;
+    --accent-bright: #ffd040;
+    --accent-glow: rgba(255, 176, 0, 0.4);
+    --border-color: #ffb00044;
+    --border-bright: #ffd040;
+    --card-header-bg: #241807;
+    --prompt-color: #ff8000;
+    --keyword-color: #ffffff;
+    --string-color: #ff9933;
+    --comment-color: #8a6a2a;
+}
+
+/* THEME: MONOKAI PRO */
+body.theme-monokai {
+    --bg-primary: #19181a;
+    --bg-secondary: #221f22;
+    --bg-card: #2d2a2e;
+    --bg-code: #141315;
+    --text-primary: #fcfcfa;
+    --text-secondary: #c1c0c0;
+    --text-muted: #727072;
+    --accent: #ffd866;
+    --accent-bright: #ff6188;
+    --accent-glow: rgba(255, 216, 102, 0.3);
+    --border-color: #403e41;
+    --border-bright: #a9dc76;
+    --card-header-bg: #353237;
+    --prompt-color: #a9dc76;
+    --keyword-color: #ff6188;
+    --string-color: #a9dc76;
+    --comment-color: #727072;
+}
+
+/* THEME: SLATE TERMINAL */
+body.theme-slate {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-card: #21262d;
+    --bg-code: #090d12;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --text-muted: #484f58;
+    --accent: #58a6ff;
+    --accent-bright: #79c0ff;
+    --accent-glow: rgba(88, 166, 255, 0.3);
+    --border-color: #30363d;
+    --border-bright: #58a6ff;
+    --card-header-bg: #1c2128;
+    --prompt-color: #3fb950;
+    --keyword-color: #ff7b72;
+    --string-color: #a5d6ff;
+    --comment-color: #8b949e;
+}
+
+/* GLOBAL RESETS */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 15px;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* CRT SCANLINE EFFECT */
+body.crt-active::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+    z-index: 9999;
+    background-size: 100% 3px, 6px 100%;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+    border-left: 1px solid var(--border-color);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* TOP TERMINAL TITLEBAR */
+.terminal-window-header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.window-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.win-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+}
+.win-dot:hover {
+    transform: scale(1.15);
+}
+.dot-red { background-color: #ff5f56; }
+.dot-yellow { background-color: #ffbd2e; }
+.dot-green { background-color: #27c93f; }
+
+.window-title {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.5px;
+}
+
+.window-title strong {
+    color: var(--text-primary);
+}
+
+.window-status-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-badge-online {
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.badge-pulse {
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px var(--accent);
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.clipboard-status-indicator {
+    background: rgba(0, 255, 102, 0.15);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.clipboard-status-indicator:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+/* TERMINAL SUB-NAVBAR & QUICK CONTROLS */
+.terminal-sub-header {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 37px;
+    z-index: 990;
+}
+
+.quick-week-dock {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    max-width: 65%;
+}
+
+.dock-pill {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--transition-fast);
+}
+
+.dock-pill:hover,
+.dock-pill.active {
+    background: var(--accent);
+    color: var(--bg-primary);
+    border-color: var(--accent);
+    font-weight: bold;
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.dock-pill-raw {
+    border-color: #ff007f;
+    color: #ff007f;
+}
+.dock-pill-raw:hover,
+.dock-pill-raw.active {
+    background: #ff007f;
+    color: #fff;
+    border-color: #ff007f;
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
+}
+
+.header-action-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-term {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all var(--transition-fast);
+}
+
+.btn-term:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+    color: var(--accent-bright);
+}
+
+.btn-term.btn-primary {
+    background: var(--accent);
+    color: var(--bg-primary);
+    font-weight: bold;
+    border-color: var(--accent);
+}
+.btn-term.btn-primary:hover {
+    background: var(--accent-bright);
+    box-shadow: 0 0 12px var(--accent);
+}
+
+.btn-term-sm {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.72rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all var(--transition-fast);
+}
+.btn-term-sm:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+    border-color: var(--accent);
+    font-weight: bold;
+}
+
+.select-term {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+    outline: none;
+}
+.select-term:focus {
+    border-color: var(--accent);
+}
+
+/* MAIN LAYOUT WRAPPER */
+.terminal-layout {
+    display: flex;
+    flex: 1;
+    min-height: calc(100vh - 80px);
+}
+
+/* SIDEBAR DIRECTORY TREE */
+.terminal-sidebar {
+    width: 280px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: width var(--transition-fast);
+}
+
+.sidebar-header {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    gap: 6px;
+}
+.search-prompt {
+    color: var(--prompt-color);
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+.search-input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.8rem;
+    width: 100%;
+    outline: none;
+}
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.tree-view {
+    list-style: none;
+    padding: 10px 8px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.tree-header {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    padding: 6px 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tree-item {
+    margin-bottom: 2px;
+}
+
+.tree-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    transition: all var(--transition-fast);
+    border-left: 2px solid transparent;
+}
+
+.tree-link:hover {
+    background: rgba(0, 255, 102, 0.08);
+    color: var(--accent-bright);
+    border-left-color: var(--accent);
+}
+
+.tree-link.active {
+    background: rgba(0, 255, 102, 0.15);
+    color: var(--accent-bright);
+    border-left-color: var(--accent);
+    font-weight: bold;
+}
+
+.tree-pill {
+    font-size: 0.65rem;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+.tree-link.active .tree-pill {
+    background: var(--accent);
+    color: var(--bg-primary);
+    border-color: var(--accent);
+}
+
+.sidebar-footer-actions {
+    padding: 12px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* MAIN CONTENT DISPLAY */
+.terminal-main-canvas {
+    flex: 1;
+    padding: 24px 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* LAB SECTIONS */
+.lab-section {
+    display: none;
+    animation: fadeIn 0.2s ease;
+}
+
+.lab-section.active {
+    display: block;
+}
+
+/* IN STREAM MODE (SHOW ALL WEEKS) */
+body.mode-stream .lab-section {
+    display: block !important;
+    margin-bottom: 48px;
+    border-bottom: 2px dashed var(--border-color);
+    padding-bottom: 32px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* TERMINAL CARDS */
+.terminal-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.terminal-card:hover {
+    border-color: var(--border-bright);
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.08);
+}
+
+.card-header {
+    background: var(--card-header-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.step-badge {
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+}
+
+.co-tag {
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid var(--prompt-color);
+    color: var(--prompt-color);
+    font-size: 0.72rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+.status-pill {
+    background: rgba(0, 255, 102, 0.1);
+    color: var(--accent);
+    border: 1px solid var(--border-color);
+    font-size: 0.68rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* WEEK HEADER CARD */
+.week-header-card {
+    padding: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-bright);
+    margin-bottom: 24px;
+}
+
+.week-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.week-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.week-number-pill {
+    background: var(--accent);
+    color: var(--bg-primary);
+    font-weight: 800;
+    font-size: 0.8rem;
+    padding: 3px 9px;
+    border-radius: var(--radius-sm);
+}
+
+.week-title {
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+.week-desc {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+/* TERMINAL BANNER & ASCII ART */
+.terminal-banner {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    text-align: center;
+}
+
+.ascii-art {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: 0.75rem;
+    line-height: 1.15;
+    text-shadow: 0 0 6px var(--accent-glow);
+}
+
+/* COLLEGE INFO CARD */
+.college-header-content {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    align-items: center;
+}
+
+.college-logo-img {
+    max-width: 130px;
+    height: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 4px;
+}
+
+.college-name {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
+.college-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.college-code {
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.dept-badge {
+    display: inline-block;
+    background: rgba(0, 255, 102, 0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+}
+
+.manual-title {
+    font-size: 1.1rem;
+    color: var(--accent-bright);
+    margin-bottom: 4px;
+}
+
+.manual-meta, .faculty-credit {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+/* CODE & QUERIES */
+.terminal-code-block {
+    background: var(--bg-code);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.code-header {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 4px 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.code-pre {
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+.terminal-output-container {
+    background: rgba(0, 0, 0, 0.6);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.output-header {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 4px 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    border-bottom: 1px dotted var(--border-color);
+}
+
+.ascii-output {
+    padding: 12px 16px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--text-secondary);
+}
+
+.terminal-note {
+    padding: 8px 16px;
+    background: rgba(0, 255, 102, 0.05);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+.note-bullet {
+    color: var(--accent);
+    font-weight: bold;
+}
+
+/* SYNTAX HIGHLIGHTING */
+.kw { color: var(--keyword-color); font-weight: bold; }
+.str { color: var(--string-color); }
+.prompt { color: var(--prompt-color); font-weight: bold; }
+
+/* TABLES */
+.terminal-table-wrapper {
+    overflow-x: auto;
+    padding: 12px 16px;
+}
+
+.terminal-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.terminal-grid-table th {
+    background: var(--card-header-bg);
+    color: var(--accent);
+    text-align: left;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+}
+
+.terminal-grid-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.btn-jump {
+    background: var(--bg-secondary);
+    color: var(--accent);
+    border: 1px solid var(--border-color);
+    padding: 3px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.72rem;
+}
+.btn-jump:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+/* DIAGRAMS & IMAGES */
+.term-img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 4px;
+    display: block;
+    margin: 8px 0;
+    transition: transform 0.2s ease;
+}
+.term-img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.diagram-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    padding: 16px;
+}
+
+.installer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    padding: 16px;
+}
+
+.install-step-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+}
+
+/* GRID LAYOUTS */
+.grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 16px;
+}
+
+.grid-3-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    padding: 16px;
+}
+
+.term-def-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    padding: 16px;
+}
+
+.def-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+}
+
+.def-term {
+    display: block;
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+.def-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.terminal-list {
+    list-style: none;
+    padding: 12px 16px;
+}
+.terminal-list li {
+    margin-bottom: 8px;
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+}
+.list-bullet {
+    color: var(--accent);
+    margin-right: 6px;
+}
+
+.term-subtitle {
+    color: var(--accent-bright);
+    font-size: 0.92rem;
+    margin: 12px 0 6px 0;
+    padding: 0 16px;
+}
+
+.term-text {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    padding: 8px 16px;
+}
+
+/* RAW DOCUMENT VIEWER SECTION AT LAST */
+.raw-section {
+    margin-top: 32px;
+}
+
+.raw-doc-header {
+    padding: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid #ff007f;
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.15);
+}
+
+.raw-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.raw-badge-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.raw-pill {
+    background: #ff007f;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.75rem;
+    padding: 3px 9px;
+    border-radius: var(--radius-sm);
+}
+
+.pulse-green {
+    background: rgba(0, 255, 102, 0.2);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.raw-heading {
+    font-size: 1.35rem;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.raw-meta {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.raw-auto-copy-banner {
+    background: rgba(0, 255, 102, 0.12);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+}
+
+.banner-icon {
+    font-size: 1.2rem;
+}
+
+.terminal-raw-viewer {
+    margin-top: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.raw-viewer-bar {
+    background: var(--card-header-bg);
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.viewer-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.viewer-title {
+    flex: 1;
+    color: var(--text-secondary);
+}
+
+.raw-content-wrapper {
+    max-height: 600px;
+    overflow-y: auto;
+    background: var(--bg-code);
+}
+
+.raw-code {
+    padding: 16px;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: var(--font-mono);
+}
+
+/* INTERACTIVE CLI CONSOLE AT BOTTOM */
+.terminal-cli-dock {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    z-index: 950;
+    transition: transform var(--transition-fast);
+}
+
+.cli-bar {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    gap: 10px;
+    background: var(--bg-primary);
+}
+
+.cli-prompt-label {
+    color: var(--prompt-color);
+    font-weight: bold;
+    font-size: 0.84rem;
+    white-space: nowrap;
+}
+
+.cli-input-field {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.cli-history-window {
+    max-height: 180px;
+    overflow-y: auto;
+    padding: 10px 16px;
+    background: var(--bg-code);
+    border-bottom: 1px solid var(--border-color);
+    display: none;
+    font-size: 0.8rem;
+}
+.cli-history-window.open {
+    display: block;
+}
+
+.cli-line {
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+.cli-line-user { color: var(--prompt-color); }
+.cli-line-out { color: var(--text-secondary); }
+.cli-line-err { color: #ff5f56; }
+.cli-line-succ { color: var(--accent); }
+
+/* TOAST NOTIFICATION */
+.terminal-toast {
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--bg-card);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 25px var(--accent-glow);
+    color: var(--text-primary);
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    z-index: 10000;
+    font-size: 0.86rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.terminal-toast.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .terminal-layout {
+        flex-direction: column;
+    }
+    .terminal-sidebar {
+        width: 100%;
+        max-height: 240px;
+    }
+    .grid-2-col, .grid-3-col {
+        grid-template-columns: 1fr;
+    }
+    .quick-week-dock {
+        max-width: 100%;
+    }
+    .college-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+"""
+
+JS_CONTENT = """// ==========================================================================
+// VBIT DBMS LAB MANUAL - TERMINAL INTERACTIVE JAVASCRIPT
+// ==========================================================================
+
+// Global state
+let currentTheme = localStorage.getItem('vbit_dbms_theme') || 'theme-matrix';
+let crtActive = localStorage.getItem('vbit_crt_mode') !== 'false';
+let currentMode = 'tabbed'; // 'tabbed' or 'stream'
+
+// DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    initCRT();
+    initClock();
+    initNavigation();
+    initSearch();
+    initCopyButtons();
+    initCLI();
+    
+    // Automatic Clipboard Copy on page open
+    autoCopyRawDocumentOnOpen();
+});
+
+// --------------------------------------------------------------------------
+// 1. AUTOMATIC CLIPBOARD COPY ON URL OPEN (Core requirement)
+// --------------------------------------------------------------------------
+async function autoCopyRawDocumentOnOpen() {
+    console.log('[Terminal] Initializing automatic copy of raw manual on open...');
+    let success = false;
+    
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(RAW_MANUAL_TEXT);
+            success = true;
+            console.log('[Terminal] Auto-copy succeeded via navigator.clipboard.');
+        }
+    } catch (err) {
+        console.warn('[Terminal] Direct clipboard access restricted without gesture:', err);
+    }
+    
+    if (!success) {
+        // Fallback using execCommand textarea
+        try {
+            const tempTa = document.createElement('textarea');
+            tempTa.value = RAW_MANUAL_TEXT;
+            tempTa.style.position = 'fixed';
+            tempTa.style.left = '-9999px';
+            tempTa.style.top = '0';
+            document.body.appendChild(tempTa);
+            tempTa.focus();
+            tempTa.select();
+            success = document.execCommand('copy');
+            document.body.removeChild(tempTa);
+            if (success) {
+                console.log('[Terminal] Auto-copy succeeded via execCommand fallback.');
+            }
+        } catch (e) {
+            console.warn('[Terminal] Fallback copy also restricted:', e);
+        }
+    }
+    
+    if (success) {
+        showTerminalToast('📋 SUCCESS: Full Raw Lab Manual automatically copied to clipboard! (Ready to paste: Ctrl+V)', 5000);
+        updateClipboardUIStatus(true);
+    } else {
+        // Armed fallback: Eagerly listen to the user's very first click or keydown anywhere on the page
+        const triggerEagerCopy = async () => {
+            try {
+                await navigator.clipboard.writeText(RAW_MANUAL_TEXT);
+                showTerminalToast('📋 SUCCESS: Full Raw Lab Manual automatically copied to clipboard! (Ready to paste: Ctrl+V)', 5000);
+                updateClipboardUIStatus(true);
+            } catch (err) {
+                fallbackCopy(RAW_MANUAL_TEXT);
+            }
+            window.removeEventListener('click', triggerEagerCopy);
+            window.removeEventListener('keydown', triggerEagerCopy);
+            window.removeEventListener('touchstart', triggerEagerCopy);
+        };
+        
+        window.addEventListener('click', triggerEagerCopy, { once: true });
+        window.addEventListener('keydown', triggerEagerCopy, { once: true });
+        window.addEventListener('touchstart', triggerEagerCopy, { once: true });
+        
+        showTerminalToast('📋 Auto-copy armed! Click anywhere to confirm copy to clipboard.', 4000);
+    }
+}
+
+function updateClipboardUIStatus(copied) {
+    const badge = document.getElementById('top-clipboard-status');
+    const rawBadge = document.getElementById('raw-badge-status');
+    if (badge) {
+        badge.innerHTML = copied ? '📋 CLIPBOARD: COPIED ✔' : '📋 CLIPBOARD: READY';
+        badge.classList.toggle('pulse-green', copied);
+    }
+    if (rawBadge) {
+        rawBadge.innerHTML = copied ? '✔ AUTO-COPIED ON OPEN' : 'READY TO COPY';
+    }
+}
+
+// --------------------------------------------------------------------------
+// 2. COPY FUNCTIONS
+// --------------------------------------------------------------------------
+function copyFullRawDocument() {
+    copyTextToClipboard(RAW_MANUAL_TEXT, 'Full Raw Lab Manual Document (79,560 characters) copied to clipboard!');
+}
+
+function copyWeekSQL(sqlCode) {
+    copyTextToClipboard(sqlCode, 'Experiment SQL commands copied to clipboard!');
+}
+
+function copyTextToClipboard(text, successMsg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showTerminalToast(`✔ ${successMsg}`, 3000);
+            updateClipboardUIStatus(true);
+        }).catch(() => {
+            fallbackCopy(text);
+        });
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+        document.execCommand('copy');
+        showTerminalToast('✔ Copied to clipboard!', 3000);
+        updateClipboardUIStatus(true);
+    } catch (err) {
+        showTerminalToast('✖ Unable to copy automatically. Please select text manually.', 3000);
+    }
+    document.body.removeChild(ta);
+}
+
+function downloadRawManual() {
+    const blob = new Blob([RAW_MANUAL_TEXT], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'DBMS_LAB_MANUAL_2025-26_RAW.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showTerminalToast('💾 Downloading DBMS_LAB_MANUAL_2025-26_RAW.txt', 3000);
+}
+
+function selectRawText() {
+    const pre = document.getElementById('raw-verbatim-text');
+    if (pre) {
+        const range = document.createRange();
+        range.selectNodeContents(pre);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        showTerminalToast('📄 Raw manual text selected! Press Ctrl+C to copy.', 3000);
+    }
+}
+
+// --------------------------------------------------------------------------
+// 3. TOAST NOTIFICATIONS
+// --------------------------------------------------------------------------
+let toastTimer = null;
+function showTerminalToast(message, duration = 3000) {
+    let toast = document.getElementById('terminal-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'terminal-toast';
+        toast.className = 'terminal-toast';
+        document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<span class="toast-icon">⚡</span> <span class="toast-msg">${message}</span>`;
+    toast.classList.add('show');
+    
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+    }, duration);
+}
+
+// --------------------------------------------------------------------------
+// 4. NAVIGATION & EXPERIMENT ACCESS
+// --------------------------------------------------------------------------
+function initNavigation() {
+    // Check URL hash
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+        jumpToSection(hash);
+    }
+    
+    // Copy buttons inside cards
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const sql = btn.getAttribute('data-copy');
+            if (sql) {
+                copyTextToClipboard(sql, 'SQL Query copied!');
+                btn.innerHTML = '✔ Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = '<span class="btn-icon">📋</span> <span class="btn-text">Copy SQL</span>';
+                }, 1500);
+            }
+        });
+    });
+    
+    // Copy entire week buttons
+    document.querySelectorAll('.copy-week-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const sql = btn.getAttribute('data-copy');
+            if (sql) {
+                copyWeekSQL(sql);
+                btn.innerHTML = '✔ All Week SQL Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = '<span class="btn-icon">📋</span> Copy Entire Week SQL';
+                }, 2000);
+            }
+        });
+    });
+}
+
+function jumpToSection(weekId) {
+    // Standardize id
+    if (!weekId.startsWith('sec-')) {
+        weekId = 'sec-' + weekId;
+    }
+    
+    const targetSec = document.getElementById(weekId);
+    if (!targetSec) return;
+    
+    if (currentMode === 'tabbed') {
+        // Hide all sections, show active
+        document.querySelectorAll('.lab-section').forEach(s => s.classList.remove('active'));
+        targetSec.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        // Stream mode: scroll to section
+        targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    // Update active pills
+    const rawWeekKey = weekId.replace('sec-', '');
+    document.querySelectorAll('.dock-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.getAttribute('data-week') === rawWeekKey);
+    });
+    
+    document.querySelectorAll('.tree-link').forEach(link => {
+        link.classList.toggle('active', link.getAttribute('data-week') === rawWeekKey);
+    });
+    
+    window.location.hash = rawWeekKey;
+}
+
+function toggleViewMode() {
+    const btn = document.getElementById('btn-mode-toggle');
+    if (currentMode === 'tabbed') {
+        currentMode = 'stream';
+        document.body.classList.add('mode-stream');
+        if (btn) btn.innerHTML = '<span>📜 Mode: Stream All</span>';
+        showTerminalToast('📜 Switched to Full Manual Stream Mode (all weeks displayed)', 2500);
+    } else {
+        currentMode = 'tabbed';
+        document.body.classList.remove('mode-stream');
+        if (btn) btn.innerHTML = '<span>📑 Mode: Single Week</span>';
+        showTerminalToast('📑 Switched to Single Week Focus Mode', 2500);
+        // Ensure active section is visible
+        const active = document.querySelector('.lab-section.active') || document.getElementById('sec-overview');
+        if (active) jumpToSection(active.id);
+    }
+}
+
+// --------------------------------------------------------------------------
+// 5. SEARCH & FILTER
+// --------------------------------------------------------------------------
+function initSearch() {
+    const searchInputs = document.querySelectorAll('.search-input');
+    searchInputs.forEach(input => {
+        input.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            filterContent(query);
+        });
+    });
+}
+
+function filterContent(query) {
+    if (!query) {
+        document.querySelectorAll('.query-card, .tree-item').forEach(el => el.style.display = '');
+        return;
+    }
+    
+    // Filter tree items in sidebar
+    document.querySelectorAll('.tree-item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(query) ? '' : 'none';
+    });
+    
+    // Filter query cards in main view
+    let matchCount = 0;
+    document.querySelectorAll('.query-card').forEach(card => {
+        const text = card.textContent.toLowerCase();
+        const matches = text.includes(query);
+        card.style.display = matches ? '' : 'none';
+        if (matches) matchCount++;
+    });
+}
+
+// --------------------------------------------------------------------------
+// 6. THEMES & CRT EFFECTS
+// --------------------------------------------------------------------------
+function initTheme() {
+    document.body.className = currentTheme;
+    if (crtActive) document.body.classList.add('crt-active');
+    
+    const selector = document.getElementById('theme-selector');
+    if (selector) {
+        selector.value = currentTheme;
+        selector.addEventListener('change', (e) => {
+            setTheme(e.target.value);
+        });
+    }
+}
+
+function setTheme(themeName) {
+    document.body.classList.remove('theme-matrix', 'theme-cyber', 'theme-amber', 'theme-monokai', 'theme-slate');
+    document.body.classList.add(themeName);
+    currentTheme = themeName;
+    localStorage.setItem('vbit_dbms_theme', themeName);
+    showTerminalToast(`🎨 Theme set to: ${themeName.replace('theme-', '').toUpperCase()}`, 2000);
+}
+
+function initCRT() {
+    const btn = document.getElementById('btn-crt-toggle');
+    if (btn) {
+        btn.addEventListener('click', toggleCRT);
+    }
+}
+
+function toggleCRT() {
+    crtActive = !crtActive;
+    document.body.classList.toggle('crt-active', crtActive);
+    localStorage.setItem('vbit_crt_mode', crtActive);
+    const btn = document.getElementById('btn-crt-toggle');
+    if (btn) {
+        btn.innerHTML = crtActive ? '📺 CRT: ON' : '📺 CRT: OFF';
+    }
+    showTerminalToast(crtActive ? '📺 CRT Scanlines Activated' : '📺 CRT Scanlines Deactivated', 2000);
+}
+
+// --------------------------------------------------------------------------
+// 7. REAL-TIME CLOCK & UPTIME
+// --------------------------------------------------------------------------
+function initClock() {
+    const clockEl = document.getElementById('term-clock');
+    const updateTime = () => {
+        if (clockEl) {
+            const now = new Date();
+            clockEl.textContent = now.toTimeString().split(' ')[0];
+        }
+    };
+    updateTime();
+    setInterval(updateTime, 1000);
+}
+
+// --------------------------------------------------------------------------
+// 8. INTERACTIVE CLI CONSOLE
+// --------------------------------------------------------------------------
+function initCLI() {
+    const input = document.getElementById('cli-input');
+    const win = document.getElementById('cli-history');
+    if (!input || !win) return;
+    
+    const history = [];
+    let histIndex = -1;
+    
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const cmd = input.value.trim();
+            if (cmd) {
+                history.push(cmd);
+                histIndex = history.length;
+                executeCommand(cmd);
+                input.value = '';
+            }
+        } else if (e.key === 'ArrowUp') {
+            if (histIndex > 0) {
+                histIndex--;
+                input.value = history[histIndex];
+            }
+        } else if (e.key === 'ArrowDown') {
+            if (histIndex < history.length - 1) {
+                histIndex++;
+                input.value = history[histIndex];
+            } else {
+                histIndex = history.length;
+                input.value = '';
+            }
+        }
+    });
+}
+
+function executeCommand(cmd) {
+    const win = document.getElementById('cli-history');
+    if (!win) return;
+    
+    win.classList.add('open');
+    const addLine = (text, type = 'out') => {
+        const div = document.createElement('div');
+        div.className = `cli-line cli-line-${type}`;
+        div.innerHTML = text;
+        win.appendChild(div);
+        win.scrollTop = win.scrollHeight;
+    };
+    
+    addLine(`vbit@dbms-lab:~$ ${html.escape(cmd)}`, 'user');
+    const lower = cmd.toLowerCase();
+    
+    if (lower === 'help') {
+        addLine(`Available commands:
+  - <strong>ls</strong> / <strong>dir</strong>: list all weeks & experiments
+  - <strong>cat week-&lt;N&gt;</strong> or <strong>week &lt;N&gt;</strong>: open specific week (1..12)
+  - <strong>cat raw</strong> / <strong>raw</strong>: jump to raw verbatim manual
+  - <strong>copy raw</strong>: copy entire raw manual to clipboard
+  - <strong>copy week &lt;N&gt;</strong>: copy SQL for week N
+  - <strong>theme &lt;matrix|cyber|amber|monokai|slate&gt;</strong>: switch UI theme
+  - <strong>crt</strong>: toggle CRT scanlines
+  - <strong>mode</strong>: toggle Single Week vs All Stream mode
+  - <strong>clear</strong>: clear CLI history
+  - <strong>whoami</strong>: display lab & student context`, 'out');
+    } else if (lower === 'ls' || lower === 'dir') {
+        addLine(`drwxr-xr-x 00_overview/
+drwxr-xr-x 01_week-1_er-model/
+drwxr-xr-x 02_week-2_normalization/
+drwxr-xr-x 03_week-3_mysql-ddl/
+drwxr-xr-x 04_week-4_dml-commands/
+drwxr-xr-x 05_week-5_constraints/
+drwxr-xr-x 06_week-6_querying/
+drwxr-xr-x 07_week-7_joins/
+drwxr-xr-x 08_week-8_subqueries/
+drwxr-xr-x 09_week-9_aggregates-views/
+drwxr-xr-x 10_week-10_triggers/
+drwxr-xr-x 11_week-11_procedures/
+drwxr-xr-x 12_week-12_cursors/
+-rw-r--r-- 13_raw_manual_verbatim.txt (79,560 bytes)`, 'succ');
+    } else if (lower === 'clear') {
+        win.innerHTML = '';
+        win.classList.remove('open');
+    } else if (lower === 'copy raw') {
+        copyFullRawDocument();
+        addLine(`✔ Full raw manual copied to clipboard!`, 'succ');
+    } else if (lower === 'cat raw' || lower === 'raw') {
+        jumpToSection('raw-doc');
+        addLine(`Opened section: RAW DOCUMENT VERBATIM COPY`, 'succ');
+    } else if (lower.startsWith('week ') || lower.startsWith('cat week')) {
+        const num = lower.replace(/^(week|cat week)[\s\-_]*/, '').trim();
+        const weekKey = `week-${num}`;
+        if (document.getElementById(`sec-${weekKey}`)) {
+            jumpToSection(weekKey);
+            addLine(`Navigated to Week ${num}`, 'succ');
+        } else {
+            addLine(`Error: Week ${num} not found. Available: 1 to 12.`, 'err');
+        }
+    } else if (lower.startsWith('theme ')) {
+        const t = lower.split(' ')[1];
+        if (['matrix', 'cyber', 'amber', 'monokai', 'slate'].includes(t)) {
+            setTheme(`theme-${t}`);
+            addLine(`Theme switched to ${t}`, 'succ');
+        } else {
+            addLine(`Unknown theme. Choose: matrix, cyber, amber, monokai, slate.`, 'err');
+        }
+    } else if (lower === 'crt') {
+        toggleCRT();
+        addLine(`CRT scanlines toggled`, 'succ');
+    } else if (lower === 'mode') {
+        toggleViewMode();
+        addLine(`View mode toggled to: ${currentMode}`, 'succ');
+    } else if (lower === 'whoami') {
+        addLine(`student@vbit-cse-aiml :: Course: 25CS2153 DBMS LAB :: B.Tech II-I Sem`, 'succ');
+    } else {
+        addLine(`Command not recognized: '${html.escape(cmd)}'. Type 'help' for command list.`, 'err');
+    }
+}
+"""
+
+with open('styles.css', 'w', encoding='utf-8') as f:
+    f.write(CSS_CONTENT)
+
+with open('app_base.js', 'w', encoding='utf-8') as f:
+    f.write(JS_CONTENT)
+
+print("styles.css and app_base.js created successfully.")
+
